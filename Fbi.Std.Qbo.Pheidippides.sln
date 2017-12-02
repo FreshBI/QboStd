@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27004.2002
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fbi.Std.Qbo.Pheidippides", "Fbi.Std.Qbo.Pheidippides\Fbi.Std.Qbo.Pheidippides.csproj", "{36EA3484-6F91-4342-A8FF-184E29B1B351}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fbi.Std.Qbo.Pheidippides", "Fbi.Std.Qbo.Pheidippides\Fbi.Std.Qbo.Pheidippides.csproj", "{36EA3484-6F91-4342-A8FF-184E29B1B351}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fbi.Std.Qbo.Core", "Fbi.Std.Qbo.Core\Fbi.Std.Qbo.Core.csproj", "{A256875E-1467-4F4E-8394-0A8580C4C897}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fbi.Std.Core", "Fbi.Std.Core\Fbi.Std.Core.csproj", "{E8D27D77-0BF4-4D76-A19C-FD3DCE2D9985}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{36EA3484-6F91-4342-A8FF-184E29B1B351}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{36EA3484-6F91-4342-A8FF-184E29B1B351}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{36EA3484-6F91-4342-A8FF-184E29B1B351}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A256875E-1467-4F4E-8394-0A8580C4C897}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A256875E-1467-4F4E-8394-0A8580C4C897}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A256875E-1467-4F4E-8394-0A8580C4C897}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A256875E-1467-4F4E-8394-0A8580C4C897}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E8D27D77-0BF4-4D76-A19C-FD3DCE2D9985}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8D27D77-0BF4-4D76-A19C-FD3DCE2D9985}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E8D27D77-0BF4-4D76-A19C-FD3DCE2D9985}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E8D27D77-0BF4-4D76-A19C-FD3DCE2D9985}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

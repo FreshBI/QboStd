@@ -2,11 +2,22 @@
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
   </PropertyGroup>
+  <ItemGroup>
+    <None Remove="QboClientWrapper.cs~RF5cf920d.TMP" />
+  </ItemGroup>
   <ItemGroup>    
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.2" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Fbi.Std.Core\Fbi.Std.Core.csproj" />
+    <ProjectReference Include="..\Fbi.Std.Qbo.Core\Fbi.Std.Qbo.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Net.Http">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.6.1\System.Net.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.WebRequest" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
