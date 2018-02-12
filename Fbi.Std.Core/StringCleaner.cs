@@ -28,7 +28,7 @@ namespace Fbi.Std.Core
             StringBuilder sb = new StringBuilder(s);
 
             sb.Replace("'", "''");
-            sb.Replace(" ", "");
+            //sb.Replace("", "");
             sb.Replace("\r\n", string.Empty);
             sb.Replace("\n", string.Empty);
             sb.Replace("\r", string.Empty);

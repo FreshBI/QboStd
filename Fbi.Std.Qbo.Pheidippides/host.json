@@ -1,2 +1,9 @@
 {
+  "tracing": {
+    "consoleLevel": "verbose",
+    "fileLoggingMode": "debugOnly"
+  },
+  "singleton": {
+    "listenerLockPeriod": "00:00:15"
+  }
 }
