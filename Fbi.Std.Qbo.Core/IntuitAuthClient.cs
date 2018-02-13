@@ -25,6 +25,7 @@ namespace Fbi.Std.Qbo.Core
         }
 
         //This Auth Client is Preconfigged to the test company
+        //Not Used in Production
         public IntuitAuthClient(ISecureStorage secureStorage)
         {
             this.secureStorage = secureStorage;
@@ -35,6 +36,7 @@ namespace Fbi.Std.Qbo.Core
         }
 
         //This creates the hashed authCredsForUserClient from Client ID and the Shared secret. Not for testing use.
+        //Not used in Production
         private static string Base64EncodeClientSecret(string clientId, string sharedSecret)
         {
             return Convert.ToBase64String(
@@ -42,6 +44,7 @@ namespace Fbi.Std.Qbo.Core
                     $"{clientId}:{sharedSecret}"));
         }
 
+        //Not Used in Production
         public async Task<string> GetAccessToken(string accessCode)
         {
             var data = new Dictionary<string, string>
@@ -53,6 +56,7 @@ namespace Fbi.Std.Qbo.Core
 
             return await GetAccessToken(data);
         }
+
 
         public async Task<string> RefreshAccessToken()
         {

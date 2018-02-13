@@ -10,7 +10,7 @@ namespace Fbi.Std.Qbo.Pheidippides
 {
     public static class QboExecutioner
     {
-        private static string _connectionString;
+        private static string _sqlConnectionString;
         private static string _connectionID;
         private static string _baseURI;
         private static string _qboTbDb;
@@ -28,11 +28,8 @@ namespace Fbi.Std.Qbo.Pheidippides
             //log.Info($"Let's get check everything is set up...");
 
             log.Info($"Loading params from appsettings");
-            _connectionString = ConfigurationManager.AppSettings["QBODBCONNECTIONSTRING"];
             _connectionID = ConfigurationManager.AppSettings["QBOCONNECTIONID"];
             _baseURI = ConfigurationManager.AppSettings["BASEURIFORQBO"];
-            _qboTbDb = ConfigurationManager.AppSettings["QBOTBDB"];
-            _qboRfDb = ConfigurationManager.AppSettings["QBORFDB"];
             _blobStorageConnectionString = ConfigurationManager.AppSettings["BLOBSTORAGECONNECTIONSTRING"];
             _blobStorageAccountName = ConfigurationManager.AppSettings["BLOBSTORAGEACCOUNTNAME"];
             _areWeHappyToRunTheScript = true;
@@ -41,16 +38,8 @@ namespace Fbi.Std.Qbo.Pheidippides
             try
             {
                 log.Info($"Checking for valid Connections to Azure Environment");
-                log.Info($"Look for DBs and tables");
 
-                var deadSqlMule = new SqlMule(_connectionString);
-                deadSqlMule.ArbitrarySqlCode($"Select * FROM { _qboTbDb }; Select * FROM { _qboRfDb }");
-                if (deadSqlMule.Query($"Select * FROM { _qboRfDb }") == null || deadSqlMule.Query($"Select * FROM { _qboRfDb }").Count != 1)
-                {
-                    throw new Exception($"The QBO Refresh Key is missing from the {_qboRfDb}");
-                }
-                deadSqlMule.DisposeOfConnection();
-                MyCustomBlobStorage.OverWriteData(_blobStorageConnectionString, _blobStorageAccountName, "QBOTEST", "FreshBI was here, just kidding, this is just a Solution Template Test");
+                MyCustomBlobStorage.WriteBlobData(_blobStorageConnectionString, _blobStorageAccountName, "QBOTEST", "FreshBI was here, just kidding, this is just a Solution Template Test");
                 log.Info($"Azure is set up properly");
 
                 log.Info($"Look for RefreshTokens and Company IDs");
@@ -61,7 +50,7 @@ namespace Fbi.Std.Qbo.Pheidippides
                 }
                 log.Info($"No errors found in the Params set");
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 _areWeHappyToRunTheScript = false;
                 log.Error($"Error in the Params Check \n\nException: {e.Message} ");
@@ -71,7 +60,7 @@ namespace Fbi.Std.Qbo.Pheidippides
             {
                 QboPheidippides(log);
             }
-            
+
 
         }
 
@@ -87,9 +76,9 @@ namespace Fbi.Std.Qbo.Pheidippides
             List<dynamic> tbDataRaw = new List<dynamic>();
             List<dynamic> plDataRaw = new List<dynamic>();
             List<JArray> tbDataJArrays = new List<JArray>();
-            QboJsonEtl jsonEtl = new QboJsonEtl(log, _qboTbDb, _connectionString, true);
-            
-            var intuitOAuthWrapper = new QboClientWrapper(_connectionID, _baseURI, new QboRefreshTokenStorage(_connectionString, _qboRfDb));
+
+            var intuitOAuthWrapper = new QboClientWrapper(_connectionID, _baseURI, new QboRefreshTokenStorage(_blobStorageConnectionString, _blobStorageAccountName));
+            //var intuitOAuthWrapper = new QboClientWrapper(_connectionID, _baseURI, new QboRefreshTokenStorage(_sqlConnectionString, _qboRfDb));
 
             log.Info($"Retrieved a custom QBO Client");
 
@@ -102,40 +91,44 @@ namespace Fbi.Std.Qbo.Pheidippides
             var accountsList = await intuitOAuthWrapper.ExecuteGet("/reports/AccountList");
 
             //Load TB data for the last 2 years
-            //for (int year = int.Parse(thisYear); year >= int.Parse(thisYear) - 2; --year)
-            //{
-            //    for (int month = 1; month <= 12; month++)
-            //    {
-            //        var lastDayOfMonth = new DateTime(year, month, 1).AddMonths(1).AddDays(-1);
-            //        try
-            //        {
-            //            tbDataRaw.Add(await intuitOAuthWrapper.ExecuteGet($"reports/TrialBalance?start_date={year}-{month}-01&end_date={year}-{month}-{lastDayOfMonth.Day.ToString()}"));
-            //        }
-            //        catch (Exception e)
-            //        {
-            //            log.Info($"TB load error- {e.Message} ");
-            //        }
-            //    }
-            //}
+            for (int year = int.Parse(thisYear); year >= int.Parse(thisYear) - 2; --year)
+            {
+                for (int month = 1; month <= 12; month++)
+                {
+                    var lastDayOfMonth = new DateTime(year, month, 1).AddMonths(1).AddDays(-1);
+                    try
+                    {
+                        tbDataRaw.Add(await intuitOAuthWrapper.ExecuteGet($"reports/TrialBalance?start_date={year}-{month}-01&end_date={year}-{month}-{lastDayOfMonth.Day.ToString()}"));
+                    }
+                    catch (Exception e)
+                    {
+                        log.Info($"TB load error- {e.Message} ");
+                    }
+                }
+            }
             // got all the TB data
 
             //log.Info($"Data in memeory, let's do something with it...");
 
-            //log.Info($"Parsing some of our Data to Jarrays"); //This data is toooooo clean for PowerQuery
-            //JArray glMaxMinDateParsedJsonRaw = JArray.Parse(glMaxMinDateDataSetRaw.Rows.Row.ToString());
-            //JArray glFullDataParsedJsonRaw = JArray.Parse(glAccrualFullDataSetRaw.Rows.Row.ToString());
-            //log.Info($"Required data parsed");
-
             log.Info($"Let's load our data to LTS");
-            MyCustomBlobStorage.OverWriteData(_blobStorageConnectionString, _blobStorageAccountName, "GlMaxMinDate", StringCleaner.Clean(glMaxMinDateDataSetRaw.ToString()));
-            MyCustomBlobStorage.OverWriteData(_blobStorageConnectionString, _blobStorageAccountName, "GlAccrualFullDataSet", StringCleaner.Clean(glAccrualFullDataSetRaw.ToString()));
-            MyCustomBlobStorage.OverWriteData(_blobStorageConnectionString, _blobStorageAccountName, "GlCashFullDataSet", StringCleaner.Clean(glCashFullDataSetRaw.ToString()));
-            MyCustomBlobStorage.OverWriteData(_blobStorageConnectionString, _blobStorageAccountName, "PrefrencesDataSet", StringCleaner.Clean(prefrencesRaw.ToString()));
-            MyCustomBlobStorage.OverWriteData(_blobStorageConnectionString, _blobStorageAccountName, "AccountsListDataSet", StringCleaner.Clean(accountSchema.ToString()));
+            MyCustomBlobStorage.WriteBlobData(_blobStorageConnectionString, _blobStorageAccountName, "GlMaxMinDate", StringCleaner.Clean(glMaxMinDateDataSetRaw.ToString()));
+            MyCustomBlobStorage.WriteBlobData(_blobStorageConnectionString, _blobStorageAccountName, "GlAccrualFullDataSet", StringCleaner.Clean(glAccrualFullDataSetRaw.ToString()));
+            MyCustomBlobStorage.WriteBlobData(_blobStorageConnectionString, _blobStorageAccountName, "GlCashFullDataSet", StringCleaner.Clean(glCashFullDataSetRaw.ToString()));
+            MyCustomBlobStorage.WriteBlobData(_blobStorageConnectionString, _blobStorageAccountName, "PrefrencesDataSet", StringCleaner.Clean(prefrencesRaw.ToString()));
+            MyCustomBlobStorage.WriteBlobData(_blobStorageConnectionString, _blobStorageAccountName, "AccountsListDataSet", StringCleaner.Clean(accountSchema.ToString()));
 
-            //This stuff is not async, so do it last
-            //jsonEtl.TrialBalance(tbDataRaw);
-            jsonEtl.DisposeConnection();
+
+            //There must be a better way to skip the first instance of an Ienumerable instead of jsut removing it
+            //This is done to facilitate the appending of the Json Queries in the TB
+            //basically, if we're on the first loop through, i will equal 0, which means the Writedata will overwrite
+            //on all other loopthroughs, the i will not equal 0, thus enabling the append
+            for (int i = 0; i < tbDataRaw.Count; i++)
+            {
+                MyCustomBlobStorage.WriteBlobData(_blobStorageConnectionString, _blobStorageAccountName, "TBDump", StringCleaner.Clean(tbDataRaw[i].ToString()), i != 0);
+            }
+
+            //Fix me: add additional Union Quality to the TB
+
 
             log.Info("Good job Kids, we did it. Shut Down and wait for the next 12 hours.");
         }
